@@ -64,12 +64,17 @@ export function AuthForm() {
         values.email,
         values.password
       );
+      // Let's create a generic avatar for the user
+      const avatarUrl = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${values.username}`;
+
       await updateProfile(userCredential.user, {
         displayName: values.username,
+        photoURL: avatarUrl,
       });
       await set(ref(db, `users/${userCredential.user.uid}`), {
         username: values.username,
         email: values.email,
+        avatar: avatarUrl,
       });
       toast({
         title: "Account Created",

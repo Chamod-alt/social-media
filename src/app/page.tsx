@@ -4,6 +4,7 @@ import { AuthPage } from "@/components/auth-page";
 import { MainApp } from "@/components/main-app";
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
+import { CreatePostDialog } from "@/components/create-post-dialog";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -16,5 +17,14 @@ export default function Home() {
     );
   }
 
-  return user ? <MainApp /> : <AuthPage />;
+  if (!user) {
+    return <AuthPage />;
+  }
+
+  return (
+    <>
+      <MainApp />
+      <CreatePostDialog />
+    </>
+  );
 }

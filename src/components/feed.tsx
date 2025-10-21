@@ -18,9 +18,18 @@ export function Feed() {
       (snapshot) => {
         const postsData: Post[] = [];
         snapshot.forEach((childSnapshot) => {
+          const post = childSnapshot.val();
+          
+          // Convert comments object to array
+          const commentsArray = post.comments ? Object.keys(post.comments).map(key => ({
+            id: key,
+            ...post.comments[key]
+          })) : [];
+
           postsData.push({
-            id: childSnapshot.key,
-            ...childSnapshot.val(),
+            id: childSnapshot.key!,
+            ...post,
+            comments: commentsArray,
           });
         });
         setPosts(postsData.reverse());
