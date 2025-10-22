@@ -1,11 +1,21 @@
 import type { User as FirebaseUser } from "firebase/auth";
 
+export interface Reply {
+  id: string;
+  text: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  timestamp: number;
+}
 export interface Comment {
   id: string;
   text: string;
   userId: string;
   userName: string;
+  userAvatar?: string;
   timestamp: number;
+  replies?: Reply[];
 }
 export interface Post {
   id: string;
@@ -16,7 +26,7 @@ export interface Post {
   userAvatar?: string;
   timestamp: number;
   likes?: { [userId: string]: boolean };
-  comments?: { [commentId: string]: Comment };
+  comments?: Comment[];
 }
 
 export interface UserProfile {
