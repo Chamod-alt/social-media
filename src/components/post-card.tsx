@@ -343,23 +343,23 @@ export function PostCard({ post }: PostCardProps) {
       </CardContent>
       <CardFooter className="pt-4 flex-col items-start">
         <Collapsible asChild>
-            <>
-            <div className="flex w-full items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={handleLike}>
-                    <Heart className={`mr-2 h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-                    Like ({likesCount})
-                </Button>
-                <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                        <MessageCircle className="mr-2 h-4 w-4" />
-                        Comment ({post.comments?.length || 0})
-                    </Button>
-                </CollapsibleTrigger>
+            <div className="w-full">
+              <div className="flex w-full items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={handleLike}>
+                      <Heart className={`mr-2 h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                      Like ({likesCount})
+                  </Button>
+                  <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                          <MessageCircle className="mr-2 h-4 w-4" />
+                          Comment ({post.comments?.length || 0})
+                      </Button>
+                  </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent asChild>
+                  <CommentSection post={post} />
+              </CollapsibleContent>
             </div>
-            <CollapsibleContent asChild>
-                <CommentSection post={post} />
-            </CollapsibleContent>
-            </>
         </Collapsible>
       </CardFooter>
     </Card>
