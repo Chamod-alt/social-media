@@ -16,7 +16,6 @@ export function AuthPage() {
           className="object-cover"
           data-ai-hint="logo network"
         />
-        <div className="absolute inset-0 z-10 bg-primary/80" />
         <div className="relative z-20 flex items-center text-lg font-medium">
           <Icons.logo className="mr-2 h-8 w-8" />
           SocialVerse
