@@ -16,6 +16,9 @@ export interface Comment {
   userAvatar?: string;
   timestamp: number;
   replies?: Reply[];
+  read?: boolean;
+  postId: string;
+  postCaption?: string;
 }
 export interface Post {
   id: string;
@@ -36,3 +39,9 @@ export interface UserProfile {
 }
 
 export type AuthUser = FirebaseUser | null;
+
+export interface Notification {
+  id: string;
+  comment: Comment;
+  post: Post;
+}

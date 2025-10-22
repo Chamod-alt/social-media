@@ -69,13 +69,16 @@ const CommentSection = ({ post }: { post: Post }) => {
         if (!user || !newComment.trim()) return;
 
         const commentsRef = ref(db, `posts/${post.id}/comments`);
-        push(commentsRef, {
+        const newCommentData: Omit<Comment, 'id' | 'postId'> = {
             text: newComment,
             userId: user.uid,
-            userName: user.displayName,
-            userAvatar: user.photoURL,
-            timestamp: serverTimestamp(),
-        });
+            userName: user.displayName || 'Anonymous',
+            userAvatar: user.photoURL || undefined,
+            timestamp: serverTimestamp() as number,
+            read: post.userId === user.uid // Mark as read if you're commenting on your own post
+        };
+
+        push(commentsRef, newCommentData);
         setNewComment("");
     };
 
