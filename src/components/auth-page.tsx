@@ -10,11 +10,11 @@ export function AuthPage() {
       <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
         <div className="absolute inset-0 z-10 bg-primary/80" />
          <Image
-            src="https://picsum.photos/seed/social/1200/800"
-            alt="Social media connections"
+            src="https://i.ibb.co/kXwLscW/socialverse.png"
+            alt="SocialVerse Logo"
             fill
             className="object-cover"
-            data-ai-hint="social connections"
+            data-ai-hint="logo network"
           />
         <div className="relative z-20 flex items-center text-lg font-medium">
           <Icons.logo className="mr-2 h-8 w-8" />
