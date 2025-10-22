@@ -93,7 +93,7 @@ const CommentSection = ({ post }: { post: Post }) => {
             text: replyText,
             userId: user.uid,
             userName: user.displayName,
-            timestamp: serverTimestamp(),
+            timestamp: serverTimestamp() as number,
         };
 
         if (user.photoURL) {
