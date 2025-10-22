@@ -73,10 +73,13 @@ const CommentSection = ({ post }: { post: Post }) => {
             text: newComment,
             userId: user.uid,
             userName: user.displayName || 'Anonymous',
-            userAvatar: user.photoURL || undefined,
             timestamp: serverTimestamp() as number,
             read: post.userId === user.uid // Mark as read if you're commenting on your own post
         };
+
+        if (user.photoURL) {
+            newCommentData.userAvatar = user.photoURL;
+        }
 
         push(commentsRef, newCommentData);
         setNewComment("");
@@ -85,13 +88,19 @@ const CommentSection = ({ post }: { post: Post }) => {
     const handleReplySubmit = (commentId: string) => {
         if (!user || !replyText.trim()) return;
         const repliesRef = ref(db, `posts/${post.id}/comments/${commentId}/replies`);
-        push(repliesRef, {
+        
+        const newReplyData: any = {
             text: replyText,
             userId: user.uid,
             userName: user.displayName,
-            userAvatar: user.photoURL,
             timestamp: serverTimestamp(),
-        });
+        };
+
+        if (user.photoURL) {
+            newReplyData.userAvatar = user.photoURL;
+        }
+
+        push(repliesRef, newReplyData);
         setReplyText("");
         setReplyingTo(null);
     };
