@@ -4,10 +4,12 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { ref, push, serverTimestamp, set } from "firebase/database";
+import { ref, update } from "firebase/database";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { push, serverTimestamp } from "firebase/database";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +26,7 @@ import { Icons } from "@/components/icons";
 import type { Post } from "@/lib/types";
 
 const uploadSchema = z.object({
-  caption: z.string().max(280, "Caption cannot exceed 280 characters."),
+  caption: z.string().max(280, "Caption cannot exceed 280 characters.").optional(),
   image: z
     .any()
     .refine((files) => files?.length === 1, "Image is required.")
@@ -41,6 +43,12 @@ const uploadSchema = z.object({
     ),
 });
 
+const editSchema = z.object({
+    caption: z.string().max(280, "Caption cannot exceed 280 characters.").optional(),
+    image: z.any().optional(),
+});
+
+
 type UploadValues = z.infer<typeof uploadSchema>;
 
 interface UploadFormProps {
@@ -56,7 +64,7 @@ export function UploadForm({ post, onPostUpdated, onFormSubmit }: UploadFormProp
   const isEditing = !!post;
 
   const form = useForm<UploadValues>({
-    resolver: zodResolver(uploadSchema),
+    resolver: zodResolver(isEditing ? editSchema : uploadSchema),
     defaultValues: {
       caption: post?.caption || "",
       image: undefined,
@@ -75,43 +83,60 @@ export function UploadForm({ post, onPostUpdated, onFormSubmit }: UploadFormProp
     setIsLoading(true);
 
     try {
-      let imageUrl = post?.imageUrl;
+      
+      if (isEditing && post.id) {
+        let imageUrl = post.imageUrl;
+        if(values.image?.[0]){
+            const formData = new FormData();
+            formData.append("image", values.image[0]);
 
-      if (values.image?.[0]) {
-        // 1. Upload image to ImgBB if a new one is provided
-        const formData = new FormData();
-        formData.append("image", values.image[0]);
-
-        const imgbbResponse = await fetch(
-          `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
-        if (!imgbbResponse.ok) {
-          throw new Error("Image upload failed. Please try again.");
+            const imgbbResponse = await fetch(
+            `https://api.imgbb.com/1/upload?key=52c3c97163788d752e21fb5a9ac01b22`,
+            {
+                method: "POST",
+                body: formData,
+            }
+            );
+            if (!imgbbResponse.ok) {
+                throw new Error("Image upload failed. Please try again.");
+              }
+      
+            const imgbbResult = await imgbbResponse.json();
+            imageUrl = imgbbResult.data.url;
         }
 
-        const imgbbResult = await imgbbResponse.json();
-        imageUrl = imgbbResult.data.url;
-      }
-
-      if (isEditing && post.id) {
-         // 2. Update existing post in Firebase
         const postRef = ref(db, `posts/${post.id}`);
-        await set(postRef, {
-            ...post,
-            imageUrl,
-            caption: values.caption,
+        await update(postRef, {
+            caption: values.caption || post.caption,
+            imageUrl: imageUrl,
         });
+
         toast({
             title: "Post updated!",
             description: "Your post has been successfully updated.",
         });
         onPostUpdated?.();
       } else {
+        let imageUrl;
+        if(values.image?.[0]){
+            const formData = new FormData();
+            formData.append("image", values.image[0]);
+
+            const imgbbResponse = await fetch(
+            `https://api.imgbb.com/1/upload?key=52c3c97163788d752e21fb5a9ac01b22`,
+            {
+                method: "POST",
+                body: formData,
+            }
+            );
+
+            if (!imgbbResponse.ok) {
+                throw new Error("Image upload failed. Please try again.");
+            }
+    
+            const imgbbResult = await imgbbResponse.json();
+            imageUrl = imgbbResult.data.url;
+        }
         // 2. Save new post to Firebase
         const postsRef = ref(db, "posts");
         await push(postsRef, {
@@ -144,14 +169,6 @@ export function UploadForm({ post, onPostUpdated, onFormSubmit }: UploadFormProp
     }
   };
   
-    // Adjust the schema for editing
-    const editSchema = uploadSchema.extend({
-        image: z.any().optional(),
-    });
-
-    form.resolver = zodResolver(isEditing ? editSchema : uploadSchema);
-
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
